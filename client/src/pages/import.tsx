@@ -18,6 +18,7 @@ import {
   Key,
   Database
 } from "lucide-react";
+import ImportTabContent from "@/components/import/import-tab-content";
 
 export default function ImportPage() {
   const { toast } = useToast();
@@ -670,23 +671,17 @@ export default function ImportPage() {
           <TabsTrigger value="modmed-ema">ModMed EMA Integration</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="patients" className="space-y-6">
-          <PatientImportCard />
-          <UploadProgressCard />
-          <UploadResultsCard />
-          {(uploadResults || isUploading || uploadProgress > 0) && (
-            <Card className="healthcare-card border-orange-200">
-              <CardContent className="pt-6">
-                <Button 
-                  variant="outline" 
-                  onClick={clearImportState}
-                  className="w-full"
-                >
-                  Clear Import State & Start Fresh
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+        <TabsContent value="patients">
+          <ImportTabContent
+            uploadResults={uploadResults}
+            isUploading={isUploading}
+            uploadProgress={uploadProgress}
+            clearImportState={clearImportState}
+            UploadProgressCard={UploadProgressCard}
+            UploadResultsCard={UploadResultsCard}
+          >
+            <PatientImportCard />
+          </ImportTabContent>
         </TabsContent>
 
         <TabsContent value="authorizations" className="space-y-6">
@@ -695,23 +690,17 @@ export default function ImportPage() {
           <UploadResultsCard />
         </TabsContent>
 
-        <TabsContent value="modmed-ema" className="space-y-6">
-          <ModMedEMACard />
-          <UploadProgressCard />
-          <UploadResultsCard />
-          {(uploadResults || isUploading || uploadProgress > 0) && (
-            <Card className="healthcare-card border-orange-200">
-              <CardContent className="pt-6">
-                <Button 
-                  variant="outline" 
-                  onClick={clearImportState}
-                  className="w-full"
-                >
-                  Clear Import State & Start Fresh
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+        <TabsContent value="modmed-ema">
+          <ImportTabContent
+            uploadResults={uploadResults}
+            isUploading={isUploading}
+            uploadProgress={uploadProgress}
+            clearImportState={clearImportState}
+            UploadProgressCard={UploadProgressCard}
+            UploadResultsCard={UploadResultsCard}
+          >
+            <ModMedEMACard />
+          </ImportTabContent>
         </TabsContent>
       </Tabs>
     </div>

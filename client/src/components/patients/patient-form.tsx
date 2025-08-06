@@ -153,6 +153,9 @@ export default function PatientForm({ trigger, onSuccess, isOpen, onOpenChange, 
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{mode === 'edit' ? 'Edit Patient' : 'Add New Patient'}</DialogTitle>
+          <DialogDescription>
+            {mode === 'edit' ? 'Update the patient details below.' : 'Fill in the form below to add a new patient.'}
+          </DialogDescription>
         </DialogHeader>
         
         <Form {...form}>
