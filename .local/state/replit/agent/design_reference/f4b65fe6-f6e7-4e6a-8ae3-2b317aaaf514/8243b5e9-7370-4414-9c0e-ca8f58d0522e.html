@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedAuth Pro - Prior Authorization Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1976D2',
+                        secondary: '#388E3C',
+                        accent: '#FFA726',
+                        error: '#D32F2F',
+                        surface: '#FAFAFA',
+                        neutral: '#424242'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- @COMPONENT: AppHeader [user authentication, notifications] -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-shield-medical text-primary text-2xl mr-3"></i>
+                    <h1 class="text-xl font-bold text-gray-900">MedAuth Pro</h1>
+                    <div class="ml-4 flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                        <i class="fas fa-lock mr-1"></i>
+                        HIPAA Compliant
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="relative p-2 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-bell"></i>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-medium" data-bind="user.initials">JD</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700" data-bind="user.name">Dr. Jane Doe</span>
+                        <span class="text-xs text-gray-500 bg-blue-100 px-2 py-1 rounded">Admin</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: AppHeader -->
+
+    <div class="flex h-screen bg-gray-50">
+        <!-- @COMPONENT: Sidebar [navigation menu] -->
+        <nav class="bg-white w-64 shadow-lg flex-shrink-0 border-r border-gray-200">
+            <div class="p-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#dashboard" class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-lg bg-blue-50 text-primary">
+                            <i class="fas fa-tachometer-alt mr-3"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#patients" class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-lg">
+                            <i class="fas fa-users mr-3"></i>
+                            Patient Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#authorizations" class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-lg">
+                            <i class="fas fa-clipboard-check mr-3"></i>
+                            Prior Authorizations
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#insurance" class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-lg">
+                            <i class="fas fa-shield-alt mr-3"></i>
+                            Insurance Verification
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#documents" class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-lg">
+                            <i class="fas fa-file-medical mr-3"></i>
+                            Document Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#reports" class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-lg">
+                            <i class="fas fa-chart-bar mr-3"></i>
+                            Reports & Analytics
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#audit" class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-lg">
+                            <i class="fas fa-history mr-3"></i>
+                            Audit Trail
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <!-- @END_COMPONENT: Sidebar -->
+
+        <!-- @COMPONENT: MainContent [dashboard content] -->
+        <main class="flex-1 overflow-y-auto">
+            <div class="p-6">
+                <!-- Dashboard Header -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Dashboard Overview</h2>
+                    <p class="text-gray-600">Manage prior authorizations and patient data efficiently</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Pending Authorizations</p>
+                                <p class="text-3xl font-bold text-accent">23</p>
+                            </div>
+                            <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-clock text-accent text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Approved Today</p>
+                                <p class="text-3xl font-bold text-secondary">8</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check-circle text-secondary text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Denied/Rejected</p>
+                                <p class="text-3xl font-bold text-error">3</p>
+                            </div>
+                            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-times-circle text-error text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Average Processing Time</p>
+                                <p class="text-3xl font-bold text-primary">2.4</p>
+                                <p class="text-sm text-gray-500">days</p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-stopwatch text-primary text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-lg shadow-sm p-6 mb-8 border border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button class="flex items-center justify-center p-4 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>
+                            New Authorization Request
+                        </button>
+                        <button class="flex items-center justify-center p-4 bg-secondary text-white rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fas fa-user-plus mr-2"></i>
+                            Add New Patient
+                        </button>
+                        <button class="flex items-center justify-center p-4 bg-accent text-white rounded-lg hover:bg-orange-600 transition-colors">
+                            <i class="fas fa-search mr-2"></i>
+                            Verify Insurance
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Authorizations Table -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="p-6 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Recent Prior Authorizations</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Treatment</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Insurance</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- @MAP: authorizations.map(auth => ( -->
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10">
+                                                <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                                    <i class="fas fa-user text-gray-500"></i>
+                                                </div>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900" data-bind="auth.patient.name">Sarah Johnson</div>
+                                                <div class="text-sm text-gray-500" data-bind="auth.patient.id">ID: PAT-2024-001</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900" data-bind="auth.treatment">MRI Brain w/ Contrast</div>
+                                        <div class="text-sm text-gray-500" data-bind="auth.cpt">CPT: 70553</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900" data-bind="auth.insurance">Blue Cross Blue Shield</div>
+                                        <div class="text-sm text-gray-500" data-bind="auth.memberID">Member: 123456789</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            <i class="fas fa-clock mr-1"></i>
+                                            Pending
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-bind="auth.submitted">2024-01-15</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button class="text-primary hover:text-blue-900 mr-3" data-event="click:viewAuthorization">View</button>
+                                        <button class="text-gray-600 hover:text-gray-900" data-event="click:editAuthorization">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10">
+                                                <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                                    <i class="fas fa-user text-gray-500"></i>
+                                                </div>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900">Michael Chen</div>
+                                                <div class="text-sm text-gray-500">ID: PAT-2024-002</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">Physical Therapy</div>
+                                        <div class="text-sm text-gray-500">CPT: 97110</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">Aetna</div>
+                                        <div class="text-sm text-gray-500">Member: 987654321</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <i class="fas fa-check mr-1"></i>
+                                            Approved
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-14</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button class="text-primary hover:text-blue-900 mr-3">View</button>
+                                        <button class="text-gray-600 hover:text-gray-900">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10">
+                                                <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                                    <i class="fas fa-user text-gray-500"></i>
+                                                </div>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900">Emily Rodriguez</div>
+                                                <div class="text-sm text-gray-500">ID: PAT-2024-003</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">Specialty Medication</div>
+                                        <div class="text-sm text-gray-500">NDC: 12345-678-90</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">UnitedHealth</div>
+                                        <div class="text-sm text-gray-500">Member: 555666777</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            <i class="fas fa-times mr-1"></i>
+                                            Denied
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-13</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button class="text-primary hover:text-blue-900 mr-3">View</button>
+                                        <button class="text-orange-600 hover:text-orange-900">Appeal</button>
+                                    </td>
+                                </tr>
+                                <!-- @END_MAP )) -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <!-- @END_COMPONENT: MainContent -->
+    </div>
+
+    <!-- @COMPONENT: Modal [new authorization form] -->
+    <div id="newAuthModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-y-auto">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-semibold text-gray-900">New Prior Authorization Request</h3>
+                        <button class="text-gray-400 hover:text-gray-600" onclick="closeModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <form class="space-y-6" data-mock="true">
+                        <!-- Patient Information -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-medium text-gray-900 mb-4">Patient Information</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Patient Name</label>
+                                    <input type="text" class="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary" placeholder="Enter patient name" data-mock="true">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                                    <input type="date" class="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary" data-mock="true">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Patient ID</label>
+                                    <input type="text" class="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary" placeholder="Auto-generated" disabled data-mock="true">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                    <input type="tel" class="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary" placeholder="(555) 123-4567" data-mock="true">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Insurance Information -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-medium text-gray-900 mb-4">Insurance Information</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Insurance Provider</label>
+                                    <select class="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary" data-mock="true">
+                                        <option>Select Insurance Provider</option>
+                                        <option>Blue Cross Blue Shield</option>
+                                        <option>Aetna</option>
+                                        <option>UnitedHealth</option>
+                                        <option>Cigna</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Member ID</label>
+                                    <input type="text" class="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary" placeholder="Enter member ID" data-mock="true">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Group Number</label>
+                                    <input type="text" class="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary" placeholder="Enter group number" data-mock="true">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Effective Date</label>
+                                    <input type="date" class="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary" data-mock="true">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Treatment Information -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-medium text-gray-900 mb-4">Treatment Information</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Treatment Type</label>
+                                    <select class="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary" data-mock="true">
+                                        <option>Select Treatment Type</option>
+                                        <option>Imaging - MRI</option>
+                                        <option>Imaging - CT Scan</option>
+                                        <option>Physical Therapy</option>
+                                        <option>Specialty Medication</option>
+                                        <option>Surgery</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">CPT Code</label>
+                                    <input type="text" class="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary" placeholder="Enter CPT code" data-mock="true">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Diagnosis Code (ICD-10)</label>
+                                    <input type="text" class="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary" placeholder="Enter ICD-10 code" data-mock="true">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Requested Date</label>
+                                    <input type="date" class="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary" data-mock="true">
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Clinical Justification</label>
+                                <textarea class="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary h-24" placeholder="Enter clinical justification for the treatment..." data-mock="true"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Document Upload -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-medium text-gray-900 mb-4">Supporting Documents</h4>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                                <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl mb-2"></i>
+                                <p class="text-gray-600">Drag and drop files here or click to browse</p>
+                                <p class="text-sm text-gray-500 mt-1">Supported formats: PDF, DOC, DOCX, JPG, PNG</p>
+                                <button type="button" class="mt-2 bg-primary text-white px-4 py-2 rounded-md hover:bg-blue-700" data-implementation="Should integrate with secure file upload">
+                                    Browse Files
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                            <button type="button" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200" onclick="closeModal()">
+                                Cancel
+                            </button>
+                            <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
+                                Save as Draft
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700" data-event="click:submitAuthorization">
+                                Submit Authorization
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: Modal -->
+
+    <!-- @COMPONENT: SecurityFooter [encryption status, compliance info] -->
+    <footer class="bg-white border-t border-gray-200 mt-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center space-x-4 text-sm text-gray-600">
+                    <div class="flex items-center">
+                        <i class="fas fa-shield-alt text-green-600 mr-1"></i>
+                        <span>End-to-End Encrypted</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-eye text-blue-600 mr-1"></i>
+                        <span>Audit Logged</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-certificate text-green-600 mr-1"></i>
+                        <span>HIPAA Compliant</span>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-500 mt-2 md:mt-0">
+                    Last backup: <span data-bind="lastBackup">2024-01-15 11:30 PM</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- @END_COMPONENT: SecurityFooter -->
+
+    <script>
+        // TODO: Implement business logic, API calls, and state management
+        (function() {
+            'use strict';
+            
+            // Modal management
+            window.closeModal = function() {
+                document.getElementById('newAuthModal').classList.add('hidden');
+            };
+            
+            // Navigation state management
+            const navLinks = document.querySelectorAll('nav a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    navLinks.forEach(l => l.classList.remove('bg-blue-50', 'text-primary'));
+                    this.classList.add('bg-blue-50', 'text-primary');
+                });
+            });
+            
+            // Quick action buttons
+            const quickActions = document.querySelectorAll('.grid button');
+            quickActions.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (this.textContent.includes('New Authorization')) {
+                        document.getElementById('newAuthModal').classList.remove('hidden');
+                    }
+                });
+            });
+            
+            // Form validation placeholders
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // TODO: Implement form validation and submission
+                    console.log('Form submitted - implement validation logic');
+                });
+            });
+            
+            // Real-time status updates simulation
+            function updateAuthorizationStatus() {
+                // TODO: Implement WebSocket connection for real-time updates
+                console.log('Status update check - implement WebSocket connection');
+            }
+            
+            // Initialize application
+            function init() {
+                // TODO: Load user permissions and configure UI based on role
+                // TODO: Initialize secure session management
+                // TODO: Set up audit logging
+                console.log('Application initialized');
+            }
+            
+            // Start the application
+            init();
+        })();
+    </script>
+</body>
+</html>
